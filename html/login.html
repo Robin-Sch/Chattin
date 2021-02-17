@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Chattin</title>
+    <link rel="stylesheet" type="text/css" href="../css/login.css" />
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="../js/update.js"></script>
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="form" id="login" style="display: block">
+            <input type="text" placeholder="email" id="Lemail" />
+            <input type="password" placeholder="password" id="Lpassword" />
+            <input type="text" placeholder="room" id="Lroom" />
+            <button id="button" onclick="login();">Login</button>
+            <button onclick="change('register');">Register instead?</button>
+        </div>
+        <div class="form" id="register" style="display: none;">
+            <input type="text" placeholder="name" id="Rname" />
+            <input type="text" placeholder="email" id="Remail" />
+            <input type="password" placeholder="password" id="Rpassword" />
+            <input type="text" placeholder="room" id="Rroom" />
+            <button id="button" onclick="register();">Register</button>
+            <button onclick="change('login');">Login instead?</button>
+        </div>
+        <p id="response" style="color: red"></p>
+        <script src="../js/login.js"></script>
+    </div>
+</body>
+
+</html>

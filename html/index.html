@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Chattin</title>
+    <link rel=stylesheet href='../css/main.css'>
+    <!-- Bootstrap Import -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="../js/update.js"></script>
+    <script src="../js/main.js"></script>
+</head>
+
+<body>
+    <div id="information">
+            <h1>Chattin</h1>
+            <p id="users"></p>
+            <p id="server"></p>
+            <form id="change_room_form" class="chat-form" action="submit">
+                <input type="text" id="change_room" required maxlength="25" placeholder="Change room">
+            </form>
+    </div>
+    <div class="container" id="middle_bar">
+        <div id="chat">
+            <div id="chat-errors"></div>
+            <div id="chat-messages"></div>
+        </div>
+        <form id="send_message_form" class="chat-form" action="submit">
+            <input type="text" id="send_message" required maxlength="200" placeholder="Send a message.">
+        </form>
+    </div>
+</body>
+
+</html>
