@@ -1,12 +1,7 @@
-const servers = [
-	'http://142.54.191.92:1846',
-];
-let currentServer = servers[0];
 const electron = require('electron');
-const url = require('url');
 const path = require('path');
 const log = require('electron-log');
-const autoUpdater = require('electron-updater').autoUpdater;
+const { autoUpdater } = require('electron-updater');
 
 const { app, BrowserWindow, Menu, ipcMain } = electron;
 const SaveData = require('./js/SaveData.js');
@@ -14,12 +9,8 @@ const currentData = new SaveData({
 	configName: 'current',
 });
 
-if(app.isPackaged) {
-	currentData.set('server', currentServer);
-} else {
-	currentServer = 'http://localhost:3000';
-	currentData.set('server', currentServer);
-}
+let server = app.isPackaged ? 'http://142.54.191.92:1846' : 'http://localhost:3000';
+currentData.set('server', server);
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
@@ -41,14 +32,18 @@ if (!gotTheLock && app.isPackaged) {
 		}
 	});
 
-	app.on('ready', function() {
-		loginWindow = new BrowserWindow({ minWidth: 400, minHeight: 400, icon: __dirname + '/build/icon.png', webPreferences: { nodeIntegration: true } });
-		loginWindow.loadURL(url.format({
-			pathname: path.join(__dirname, '/html/login.html'),
-			protocol: 'file:',
-			slashes: true,
-		}));
-		loginWindow.on('closed', function() {
+	app.on('ready', () => {
+		loginWindow = new BrowserWindow({ 
+			minWidth: 400, 
+			minHeight: 400, 
+			icon: path.join(__dirname, 'build/icon.png'), 
+			webPreferences: {
+				nodeIntegration: true,
+				contextIsolation: false
+			}
+		});
+		loginWindow.loadURL(`file://${path.join(__dirname, 'html/login.html')}`);
+		loginWindow.on('closed', () => {
 			loginWindow = null;
 		});
 		const loginMenu = Menu.buildFromTemplate(loginMenuTemplate);
@@ -69,17 +64,22 @@ if (!gotTheLock && app.isPackaged) {
 	const mainMenuTemplate = [];
 	const loginMenuTemplate = [];
 
-	ipcMain.on('open:index', function(event, data) {
-		mainWindow = new BrowserWindow({ show: false, minWidth: 400, minHeight: 400, icon: __dirname + '/build/icon.png', webPreferences: { nodeIntegration: true } });
+	ipcMain.on('open:index', (event, data) => {
+		mainWindow = new BrowserWindow({ 
+			show: false, 
+			minWidth: 400, 
+			minHeight: 400, 
+			icon: path.join(__dirname, 'build/icon.png'), 
+			webPreferences: { 
+				nodeIntegration: true,
+				contextIsolation: false,
+			}
+		});
 		if(!app.isPackaged) mainWindow.webContents.openDevTools();
 		mainWindow.maximize();
 		mainWindow.show();
-		mainWindow.loadURL(url.format({
-			pathname: path.join(__dirname, '/html/index.html'),
-			protocol: 'file:',
-			slashes: true,
-		}));
-		mainWindow.on('closed', function() {
+		mainWindow.loadURL(`file://${path.join(__dirname, 'html/index.html')}`);
+		mainWindow.on('closed', () => {
 			app.quit();
 		});
 		const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
@@ -94,23 +94,18 @@ if (!gotTheLock && app.isPackaged) {
 		if (loginWindow) loginWindow.close();
 	});
 
-	ipcMain.on('close', function() {
+	ipcMain.on('close', () => {
 		currentWindow.close();
 	});
 
-	ipcMain.on('focus', function() {
+	ipcMain.on('focus', () => {
 		if (currentWindow.isMinimized()) currentWindow.restore();
 		currentWindow.focus();
 	});
 
-	ipcMain.on('newServer', function(event, data) {
-		let index = servers.indexOf(currentServer);
-		index += 1;
-		if (index >= servers.length) index = 0;
-		currentServer = servers[index];
-		log.info('reconnect', `Reconnecting to ${currentServer}`);
-		currentData.set('server', currentServer);
-		currentWindow.webContents.send('newServer', { server: currentServer, data });
+	ipcMain.on('getPath', (event, data) => {
+		const userDataPath = electron.app.getPath(data);
+		currentWindow.webContents.send('getPath', userDataPath);
 	});
 
 	// If mac, add empty object to menu

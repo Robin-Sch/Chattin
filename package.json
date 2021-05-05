@@ -1,10 +1,10 @@
 {
   "name": "chattin",
-  "version": "0.0.1",
-  "description": "Chattin is an application to talk with other people",
+  "version": "0.0.2",
+  "description": "An application to talk with other people across different rooms",
   "main": "index.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron . --dev",
     "pack": "electron-builder --dir",
     "dist": "electron-builder --win",
     "ship": "electron-builder --win --linux deb -p always",
@@ -43,16 +43,15 @@
   "homepage": "https://robinsch.wtf/chattin",
   "license": "MIT",
   "dependencies": {
-    "electron-log": "^3.0.8",
-    "electron-updater": "^4.1.2",
+    "electron-log": "^4.3.1",
+    "electron-updater": "^4.3.5",
     "express": "^4.17.1",
     "path": "^0.12.7",
-    "socket.io": "^2.3.0",
-    "url": "^0.11.0"
+    "socket.io": "^3.1.1"
   },
   "devDependencies": {
-    "electron": "^6.0.12",
-    "electron-builder": "^21.2.0",
-    "electron-packager": "^14.0.6"
+    "electron": "^11.2.3",
+    "electron-builder": "^22.9.1",
+    "electron-packager": "^15.2.0"
   }
 }

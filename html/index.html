@@ -28,13 +28,15 @@
                 <input type="text" id="change_room" required maxlength="25" placeholder="Change room">
             </form>
     </div>
-    <div class="container" id="middle_bar">
+    <div class="container" id="chat-container">
         <div id="chat">
             <div id="chat-errors"></div>
             <div id="chat-messages"></div>
         </div>
-        <form id="send_message_form" class="chat-form" action="submit">
-            <input type="text" id="send_message" required maxlength="200" placeholder="Send a message.">
+        <form id="send_message_form" id="chat-form" action="submit">
+            <div id="settings">
+                <input type="text" id="send_message" required maxlength="200" placeholder="Send a message.">
+            </div>
         </form>
     </div>
 </body>

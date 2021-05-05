@@ -1,12 +1,21 @@
 const electron = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { app, ipcRenderer } = require('electron');
 
 class SaveData {
 	constructor(opts) {
-		const userDataPath = (electron.app || electron.remote.app).getPath('userData');
-		this.path = path.join(userDataPath, opts.configName + '.json');
-		this.data = parseDataFile(this.path, opts.defaults);
+		if (!app) {
+			ipcRenderer.send('getPath', 'userData');
+			ipcRenderer.on('getPath', (event, data) => {
+				this.path = path.join(data, opts.configName + '.json');
+				this.data = parseDataFile(this.path, opts.defaults);
+			});
+		} else {
+			const userDataPath = app.getPath('userData');
+			this.path = path.join(userDataPath, opts.configName + '.json');
+			this.data = parseDataFile(this.path, opts.defaults);
+		}
 	}
 
 	get(key) {
@@ -21,7 +30,7 @@ class SaveData {
 	}
 }
 
-function parseDataFile(filePath, defaults) {
+const parseDataFile = (filePath, defaults) => {
 	try {
 		return JSON.parse(fs.readFileSync(filePath));
 	} catch(error) {

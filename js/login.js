@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable  no-undef */
 const electron = require('electron');
 const { ipcRenderer } = electron;
 const SaveData = require('../js/SaveData.js');
@@ -9,21 +7,27 @@ const savedata = new SaveData({
 const currentData = new SaveData({
 	configName: 'current',
 });
-let server = currentData.get('server');
-if (!server) ipcRenderer.send('getServer');
-const oldEmail = savedata.get('email');
-if (oldEmail) document.getElementById('Lemail').value = oldEmail;
-const oldRoom = savedata.get('room');
-if (oldRoom) document.getElementById('Lroom').value = oldRoom;
 
-ipcRenderer.on('newServer', function(event, data) {
-	server = data.server;
-	console.log(data.data);
-	if (data.data == 'login') login();
-	else if (data.data == 'register') register();
-});
+let server = undefined;
+let oldEmail = undefined;
+let oldRoom = undefined;
 
-async function login() {
+const getPrevious = setInterval(() => {
+	if (!oldEmail) {
+		oldEmail = savedata.get('email');
+		if (oldEmail) document.getElementById('Lemail').value = oldEmail;
+	
+		oldRoom = savedata.get('room');
+		if (oldRoom) document.getElementById('Lroom').value = oldRoom;
+
+		server = currentData.get('server');
+		if (!server) document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
+	} else {
+		clearInterval(getPrevious);
+	}
+}, 500)
+
+const login = async () => {
 	const email = document.getElementById('Lemail').value;
 	const password = document.getElementById('Lpassword').value;
 	let room = document.getElementById('Lroom').value;
@@ -35,8 +39,7 @@ async function login() {
 	} else if (room.length < 0 || room.length > 25) {
 		return alert('Your room name can\'t be longer than 25 characters!');
 	} else if (!server) {
-		ipcRenderer.send('newServer', 'login');
-		return alert('I can\'t connect to the server, try again!');
+		document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
 	} else {
 		const body = {
 			email,
@@ -55,15 +58,15 @@ async function login() {
 					savedata.set('uid', json.uid);
 					savedata.set('email', email);
 					savedata.set('room', room);
+					savedata.set('token', json.token);
 					ipcRenderer.send('open:index', { uid: json.uid, room: room });
 				}
 			}).catch(() => {
-				ipcRenderer.send('newServer', 'login');
-				document.getElementById('response').innerHTML = 'It seems like our server is offline!';
+				document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
 			});
 	}
 }
-async function register() {
+const register = async () => {
 	const name = document.getElementById('Rname').value;
 	const email = document.getElementById('Remail').value;
 	const password = document.getElementById('Rpassword').value;
@@ -80,8 +83,7 @@ async function register() {
 	} else if (name.length < 0 || name.length > 25) {
 		return alert('Your name can\'t be longer than 25 characters!');
 	} else if (!server) {
-		ipcRenderer.send('newServer', 'register');
-		return alert('I can\'t connect to the server, try again!');
+		document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
 	} else {
 		const body = {
 			name,
@@ -99,17 +101,24 @@ async function register() {
 					savedata.set('uid', json.uid);
 					savedata.set('email', email);
 					savedata.set('room', room);
+					savedata.set('token', json.token);
 					ipcRenderer.send('open:index', { uid: json.uid, room: room });
 				}
 			}).catch(() => {
-				ipcRenderer.send('newServer', 'register');
-				document.getElementById('response').innerHTML = 'It seems like our server is offline!';
+				document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
 			});
 	}
 }
-async function change(block) {
+const change = (block) => {
 	const other = block == 'login' ? 'register' : 'login';
 	document.getElementById(block).style = 'display: block';
 	document.getElementById(other).style = 'display: none';
-	console.log(block, other);
+}
+
+const error = (errorBool, msg) => {
+	if (errorBool) {
+		document.getElementById('response').innerHTML = msg;
+	} else {
+		document.getElementById('response').innerHTML = '';
+	}
 }
