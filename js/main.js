@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 $(function() {
-	const { ipcRenderer } = require('electron');
+	const { ipcRenderer, session } = require('electron');
+	const { sessionKeys, loadEncryptionObjects, loadSessionKeys, pack, unpack } = require('../js/crypt.js');
 	const SaveData = require('../js/SaveData.js');
 	const savedata = new SaveData({
 		configName: 'user-preferences',
@@ -11,6 +12,8 @@ $(function() {
 
 	let server = undefined;
 	let token = undefined;
+
+	loadSessionKeys();
 
 	const getPrevious = setInterval(() => {
 		if (!server || !token) {
@@ -24,6 +27,10 @@ $(function() {
 			socket.on('authenticated', () => {
 				setTimeout(() => {
 					socket.emit('joinRoom', room);
+					socket.emit('init-session', {
+						status: true,
+						key: sessionKeys.client.public
+					});
 				}, 1000);
 			});
 
@@ -48,6 +55,9 @@ $(function() {
 					return false;
 				}, timeout);
 			});
+			socket.on('init-session', (data) => {
+				loadEncryptionObjects(data.key);
+			});
 		
 			ipcRenderer.on('start', (event, data) => {
 				if (data.room !== room || data.uid !== uid) ipcRenderer.send('close');
@@ -55,13 +65,16 @@ $(function() {
 
 			$('#send_message_form').submit((e) => {
 				e.preventDefault();
-				const data = {
-					message: $('#send_message').val(),
+				const msg = $('#send_message').val();
+				if (!msg) return;
+
+				const data = pack({
+					message: msg,
 					uid,
 					room,
-				};
-				if (!data.message) return;
+				});
 				socket.emit('message', data);
+
 				$('#send_message').val('');
 				return false;
 			});
@@ -76,13 +89,14 @@ $(function() {
 				return false;
 			});
 			socket.on('message', (data) => {
-				$('#chat-messages').append($('<p style="white-space: pre-line">').text(`${data.username}:\n${data.message}`));
+				const decrypted = JSON.parse(unpack(data));
+				$('#chat-messages').append($('<p style="white-space: pre-line">').text(`${decrypted.username}:\n${decrypted.message}`));
 				$('#chat').animate({ scrollTop: $('#chat').prop('scrollHeight') });
 				if (data.uid !== uid) {
 					const audio = new Audio('../sounds/message.mp3');
 					audio.play();
-					const myNotification = new Notification(data.username, {
-						body: data.message,
+					const myNotification = new Notification(decrypted.username, {
+						body: decrypted.message,
 					});
 					myNotification.onclick = () => {
 						ipcRenderer.send('focus');
