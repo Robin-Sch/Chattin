@@ -1,0 +1,53 @@
+name: CI-release
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    name: Publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - name: Linux
+            os: ubuntu-latest
+            artifact_suffix: ".AppImage"
+          - name: Windows
+            os: windows-latest
+            artifact_suffix: ".exe"
+          - name: macOS
+            os: macos-latest
+            artifact_suffix: ".dmg"
+    steps:
+      - name: Pull source
+        uses: actions/checkout@master
+        with:
+          ref: master
+      - name: Setup node
+        uses: actions/setup-node@master
+        with:
+          node-version: 14.16
+      - name: Install dependencies
+        run: npm install
+      - name: Build electron
+        run: if [ "$RUNNER_OS" == "Linux" ]; then npm run build-linux; elif [ "$RUNNER_OS" == "Windows" ]; then npm run build-win; elif [ "$RUNNER_OS" == "macOS" ]; then npm run build-mac; fi
+        shell: bash
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/*${{ matrix.artifact_suffix }}
+          tag: ${{ github.ref }}
+          file_glob: true
+          overwrite: true
+      - name: Upload latest info to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/latest*.yml
+          tag: ${{ github.ref }}
+          file_glob: true
+          overwrite: true

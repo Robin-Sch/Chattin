@@ -41,7 +41,7 @@
     "email": "ytrobinsch2@gmail.com"
   },
   "homepage": "https://robinsch.wtf/chattin",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "electron-log": "^4.3.1",
     "electron-updater": "^4.3.5",
