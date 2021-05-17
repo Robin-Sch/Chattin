@@ -1,13 +1,7 @@
 const md5 = require('./lib/md5.min.js');
 const aesjs = require('aes-js');
 
-let SECURITY_LEVEL = 2048;
-
-if ((window.navigator.userAgent.indexOf('MSIE') > 0) ||
-    (window.navigator.userAgent.indexOf('Trident/7') > 0) ||
-    (window.navigator.userAgent.indexOf('Edge/') > 0)) {
-	SECURITY_LEVEL = 1024;
-}
+let SECURITY_LEVEL = 4096;
 
 let sessionKeys = {
 	client: {},
@@ -26,14 +20,8 @@ function generateRandomString(length) {
 }
 
 function generateSessionKeys() {
-	console.log('generating ' + SECURITY_LEVEL + '-bit key pair...');
 	const crypt = new JSEncrypt({ default_key_size: SECURITY_LEVEL });
-	let dt = new Date();
-	let time = -(dt.getTime());
 	crypt.getKey();
-	dt = new Date();
-	time += (dt.getTime());
-	console.log('Keys Generated in ' + time + ' ms');
 
 	sessionKeys.client = {
 		'private': crypt.getPrivateKey(),
@@ -44,31 +32,11 @@ function generateSessionKeys() {
 function loadEncryptionObjects(serverPublicKey) {
 	sessionKeys.server.public = serverPublicKey;
 
-	if (typeof (Storage) !== 'undefined') {
-		sessionStorage.RSAKeys = JSON.stringify(sessionKeys);
-		console.log('session key stored: ' + sessionStorage.RSAKeys);
-	}
-
 	encrypter = new JSEncrypt();
 	encrypter.setKey(sessionKeys.server.public);
 
 	decrypter = new JSEncrypt();
 	decrypter.setKey(sessionKeys.client.private);
-}
-
-function loadSessionKeys() {
-	if (typeof (Storage) !== 'undefined') {
-		if (sessionStorage.RSAKeys) {
-			sessionKeys = JSON.parse(sessionStorage.RSAKeys);
-			console.log('client keys loaded from session storage');
-		} else {
-			generateSessionKeys();
-			sessionStorage.RSAKeys = JSON.stringify(sessionKeys);
-			console.log('session keys saved to storage');
-		}
-	} else {
-		console.log('Sorry! No Web Storage support..');
-	}
 }
 
 const aes = {
@@ -114,14 +82,13 @@ function pack(data) {
 
 function unpack(data) {
 	const aesKey = decrypter.decrypt(data.key);
-	console.log(aes.decrypt(aesKey, data.encrypted))
 	return aes.decrypt(aesKey, data.encrypted);
 }
 
 module.exports = {
 	sessionKeys,
 	loadEncryptionObjects,
-	loadSessionKeys,
+	generateSessionKeys,
 	pack,
 	unpack,
 }

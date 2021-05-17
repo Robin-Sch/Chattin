@@ -5,9 +5,6 @@
   "main": "index.js",
   "scripts": {
     "start": "electron . --dev",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder --win",
-    "ship": "electron-builder --win --linux deb -p always",
     "build-win": "electron-builder --win",
     "build-mac": "electron-builder --mac dmg",
     "build-linux": "electron-builder --linux appimage"

@@ -55,11 +55,9 @@ const login = async () => {
 				if (!json.success) {
 					return document.getElementById('response').innerHTML = json.message;
 				} else {
-					savedata.set('uid', json.uid);
 					savedata.set('email', email);
 					savedata.set('room', room);
-					savedata.set('token', json.token);
-					ipcRenderer.send('open:index', { uid: json.uid, room: room });
+					ipcRenderer.send('open:index', { uid: json.uid, room, token: json.token, uid: json.uid });
 				}
 			}).catch(() => {
 				document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
@@ -98,11 +96,9 @@ const register = async () => {
 		}).then(res => res.json())
 			.then(json => {
 				if (!json.success) {return document.getElementById('response').innerHTML = json.message;} else {
-					savedata.set('uid', json.uid);
 					savedata.set('email', email);
 					savedata.set('room', room);
-					savedata.set('token', json.token);
-					ipcRenderer.send('open:index', { uid: json.uid, room: room });
+					ipcRenderer.send('open:index', { uid: json.uid, room, token: json.token, uid: json.uid });
 				}
 			}).catch(() => {
 				document.getElementById('response').innerHTML = 'There are problems connecting to the server!';

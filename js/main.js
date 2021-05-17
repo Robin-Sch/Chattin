@@ -1,28 +1,27 @@
-/* eslint-disable no-undef */
 $(function() {
-	const { ipcRenderer, session } = require('electron');
-	const { sessionKeys, loadEncryptionObjects, loadSessionKeys, pack, unpack } = require('../js/crypt.js');
+	const { ipcRenderer } = require('electron');
+	const { sessionKeys, loadEncryptionObjects, generateSessionKeys, pack, unpack } = require('../js/crypt.js');
 	const SaveData = require('../js/SaveData.js');
-	const savedata = new SaveData({
-		configName: 'user-preferences',
-	});
 	const currentData = new SaveData({
 		configName: 'current',
 	});
 
-	let server = undefined;
-	let token = undefined;
+	let token, uid, room, server;
 
-	loadSessionKeys();
+	ipcRenderer.on('start', (event, data) => {
+		token = data.token;
+		uid = data.uid;
+		room = data.room;
+	});
 
 	const getPrevious = setInterval(() => {
-		if (!server || !token) {
+		if (!server) {
 			server = currentData.get('server');
-			token = savedata.get('token');
 		} else {
+			generateSessionKeys();
+			
+			document.getElementById('chat-errors').innerHTML = 'Connecting to the server';
 			let socket = io(server);
-			let room = savedata.get('room');
-			const uid = savedata.get('uid');
 
 			socket.on('authenticated', () => {
 				setTimeout(() => {
@@ -39,30 +38,25 @@ $(function() {
 			});
 
 			socket.on('disconnect', () => {
-				ipcRenderer.send('close');
+				error(true, 'Disconnected from server, please restart Chattin!');
 			});
 			socket.on('connect_failed', () => {
-				ipcRenderer.send('close');
+				error(true, 'Disconnected from server, please restart Chattin!');
 			});
 			socket.on('connect_error', () => {
-				ipcRenderer.send('close');
+				error(true, 'Disconnected from server, please restart Chattin!');
 			});
 			socket.on('slowmode', (data, timeout) => {
+				const decrypted = JSON.parse(unpack(data));
 				$('#send_message').css('border-color', 'red');
-				$('#send_message').val(data.message);
+				$('#send_message').val(decrypted.message);
 				setTimeout(() => {
 					$('#send_message').css('border-color', 'black');
-					return false;
 				}, timeout);
 			});
 			socket.on('init-session', (data) => {
 				loadEncryptionObjects(data.key);
 			});
-		
-			ipcRenderer.on('start', (event, data) => {
-				if (data.room !== room || data.uid !== uid) ipcRenderer.send('close');
-			});
-
 			$('#send_message_form').submit((e) => {
 				e.preventDefault();
 				const msg = $('#send_message').val();
@@ -113,7 +107,8 @@ $(function() {
 				$('#server').html(`Room: ${data.room}<br>Server: ${data.server}`);
 			});
 
-			socket.emit('authenticate', {token});
+			socket.emit('authenticate', { token });
+			token = null;
 
 			clearInterval(getPrevious);
 		}

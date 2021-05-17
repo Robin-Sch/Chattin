@@ -17,7 +17,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="../js/lib/jsencrypt.min.js"></script>
     <script src="../js/update.js"></script>
-    <script src="../js/main.js"></script>
+    <script src="../js/main.js" defer></script>
 </head>
 
 <body>
@@ -31,12 +31,12 @@
     </div>
     <div class="container" id="chat-container">
         <div id="chat">
-            <div id="chat-errors"></div>
+            <div id="chat-errors">Generating encryption key, please wait!</div>
             <div id="chat-messages"></div>
         </div>
         <form id="send_message_form" id="chat-form" action="submit">
             <div id="settings">
-                <input type="text" id="send_message" required maxlength="200" placeholder="Send a message.">
+                <input type="text" id="send_message" required maxlength="2000" placeholder="Send a message." disabled>
             </div>
         </form>
     </div>
