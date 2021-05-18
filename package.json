@@ -1,6 +1,6 @@
 {
   "name": "chattin",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "An application to talk with other people across different rooms",
   "main": "index.js",
   "scripts": {
