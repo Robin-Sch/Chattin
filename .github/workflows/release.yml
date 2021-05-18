@@ -35,6 +35,8 @@ jobs:
       - name: Build electron
         run: if [ "$RUNNER_OS" == "Linux" ]; then npm run build-linux; elif [ "$RUNNER_OS" == "Windows" ]; then npm run build-win; elif [ "$RUNNER_OS" == "macOS" ]; then npm run build-mac; fi
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
