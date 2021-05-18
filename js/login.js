@@ -9,13 +9,13 @@ const currentData = new SaveData({
 });
 
 let server = undefined;
-let oldEmail = undefined;
+let oldUsername = undefined;
 let oldRoom = undefined;
 
 const getPrevious = setInterval(() => {
-	if (!oldEmail) {
-		oldEmail = savedata.get('email');
-		if (oldEmail) document.getElementById('Lemail').value = oldEmail;
+	if (!oldUsername) {
+		oldUsername = savedata.get('username');
+		if (oldUsername) document.getElementById('Lusername').value = oldUsername;
 	
 		oldRoom = savedata.get('room');
 		if (oldRoom) document.getElementById('Lroom').value = oldRoom;
@@ -28,83 +28,81 @@ const getPrevious = setInterval(() => {
 }, 500)
 
 const login = async () => {
-	const email = document.getElementById('Lemail').value;
+	const username = document.getElementById('Lusername').value;
 	const password = document.getElementById('Lpassword').value;
 	let room = document.getElementById('Lroom').value;
 	if (!room) room = 'public';
-	if (!email) {
-		return alert('Missing your email!');
-	} else if (!password) {
-		return alert('Missing your password!');
-	} else if (room.length < 0 || room.length > 25) {
-		return alert('Your room name can\'t be longer than 25 characters!');
-	} else if (!server) {
-		document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
-	} else {
-		const body = {
-			email,
-			password,
-			room,
-		};
-		fetch(`${server}/login`, {
-			method: 'POST',
-			body: JSON.stringify(body),
-			headers: { 'Content-Type': 'application/json' },
-		}).then(res => res.json())
-			.then(json => {
-				if (!json.success) {
-					return document.getElementById('response').innerHTML = json.message;
-				} else {
-					savedata.set('email', email);
-					savedata.set('room', room);
-					ipcRenderer.send('open:index', { uid: json.uid, room, token: json.token, uid: json.uid });
-				}
-			}).catch(() => {
-				document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
-			});
-	}
+	
+	const valid = validate(username, password, room);
+	if (!valid.success) return alert(valid.message);
+
+	const body = {
+		username,
+		password,
+		room,
+	};
+	fetch(`${server}/login`, {
+		method: 'POST',
+		body: JSON.stringify(body),
+		headers: { 'Content-Type': 'application/json' },
+	}).then(res => res.json())
+		.then(json => {
+			if (!json.success) {
+				return document.getElementById('response').innerHTML = json.message;
+			} else {
+				savedata.set('username', username);
+				savedata.set('room', room);
+				ipcRenderer.send('open:index', { uid: json.uid, room, token: json.token, uid: json.uid });
+			}
+		}).catch(() => {
+			document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
+		});
 }
 const register = async () => {
-	const name = document.getElementById('Rname').value;
-	const email = document.getElementById('Remail').value;
+	const username = document.getElementById('Rusername').value;
 	const password = document.getElementById('Rpassword').value;
 	let room = document.getElementById('Rroom').value;
 	if (!room) room = 'public';
-	if (!name) {
-		return alert('Missing your name!');
-	} else if (!email) {
-		return alert('Missing your email!');
+
+	const valid = validate(username, password, room);
+	if (!valid.success) return alert(valid.message);
+
+	const body = {
+		username,
+		password,
+		room,
+	};
+	fetch(`${server}/register`, {
+		method: 'POST',
+		body: JSON.stringify(body),
+		headers: { 'Content-Type': 'application/json' },
+	}).then(res => res.json())
+		.then(json => {
+			if (!json.success) {return document.getElementById('response').innerHTML = json.message;} else {
+				savedata.set('username', username);
+				savedata.set('room', room);
+				ipcRenderer.send('open:index', { uid: json.uid, room, token: json.token, uid: json.uid });
+			}
+		}).catch(() => {
+			document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
+		});
+}
+const validate = (username, password, room) => {
+	if (!username) {
+		return { success: false, message: 'Missing your username!' };
+	} else if (username.length < 1 || username.length > 32) {
+		return { success: false, message: 'Your username can\'t be longer than 32 characters' };
 	} else if (!password) {
-		return alert('Missing your password!');
-	} else if (room.length < 0 || room.length > 25) {
-		return alert('Your room name can\'t be longer than 25 characters!');
-	} else if (name.length < 0 || name.length > 25) {
-		return alert('Your name can\'t be longer than 25 characters!');
-	} else if (!server) {
-		document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
+		return { success: false, message: 'Missing your password!' };
+	} else if (!room) {
+		return { success: false, message: 'Missing the room!' };
+	} else if (room.length < 0 || room.length > 32) {
+		return { success: false, message: 'Your room name can\'t be longer than 32 characters!' };
 	} else {
-		const body = {
-			name,
-			email,
-			password,
-			room,
-		};
-		fetch(`${server}/register`, {
-			method: 'POST',
-			body: JSON.stringify(body),
-			headers: { 'Content-Type': 'application/json' },
-		}).then(res => res.json())
-			.then(json => {
-				if (!json.success) {return document.getElementById('response').innerHTML = json.message;} else {
-					savedata.set('email', email);
-					savedata.set('room', room);
-					ipcRenderer.send('open:index', { uid: json.uid, room, token: json.token, uid: json.uid });
-				}
-			}).catch(() => {
-				document.getElementById('response').innerHTML = 'There are problems connecting to the server!';
-			});
+		return { success: true };
 	}
 }
+
 const change = (block) => {
 	const other = block == 'login' ? 'register' : 'login';
 	document.getElementById(block).style = 'display: block';

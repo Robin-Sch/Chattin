@@ -6,7 +6,7 @@ Chattin is an application to talk with other people. You can join different room
 
 ## Register
 
-Open the app, enter a name, a username and an email, then click "register" to register
+Open the app, enter an username and a password, then click "register" to register
 
 ## Rooms
 
@@ -14,4 +14,4 @@ Chattin uses rooms to communicate with eachother, you both need to be in the sam
 
 ## About the project
 
-This is an [electron](https://www.electronjs.org/) application, built using [travis-ci](https://travis-ci.com/)
+This is an [electron](https://www.electronjs.org/) application, which uses e2e encryption to chat with other people.
