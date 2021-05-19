@@ -5,11 +5,12 @@ const { autoUpdater } = require('electron-updater');
 
 const { app, BrowserWindow, Menu, ipcMain } = electron;
 const SaveData = require('./js/SaveData.js');
+const { info } = require('electron-log');
 const currentData = new SaveData({
 	configName: 'current',
 });
 
-let server = app.isPackaged ? 'http://142.54.191.92:1846' : 'http://localhost:3000';
+let server = app.isPackaged ? 'http://158.69.123.177:1846' : 'http://localhost:3000';
 currentData.set('server', server);
 
 autoUpdater.logger = log;
@@ -65,6 +66,8 @@ if (!gotTheLock && app.isPackaged) {
 	const loginMenuTemplate = [];
 
 	ipcMain.on('open:index', (event, data) => {
+		log.info('Logged in');
+
 		mainWindow = new BrowserWindow({ 
 			show: false, 
 			minWidth: 400, 
@@ -75,6 +78,7 @@ if (!gotTheLock && app.isPackaged) {
 				contextIsolation: false,
 			}
 		});
+
 		if(!app.isPackaged) mainWindow.webContents.openDevTools();
 		mainWindow.maximize();
 		mainWindow.show();
@@ -82,6 +86,7 @@ if (!gotTheLock && app.isPackaged) {
 		mainWindow.on('closed', () => {
 			app.quit();
 		});
+
 		const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
 		Menu.setApplicationMenu(mainMenu);
 		currentWindow = mainWindow;
@@ -106,6 +111,10 @@ if (!gotTheLock && app.isPackaged) {
 	ipcMain.on('getPath', (event, data) => {
 		const userDataPath = electron.app.getPath(data);
 		currentWindow.webContents.send('getPath', userDataPath);
+	});
+
+	ipcMain.on('log', (event, data) => {
+		log.info(data);
 	});
 
 	// If mac, add empty object to menu

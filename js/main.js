@@ -19,6 +19,7 @@ $(function() {
 			server = currentData.get('server');
 		} else {
 			generateSessionKeys();
+			ipcRenderer.send('log', 'Generated key');
 			
 			document.getElementById('chat-errors').innerHTML = 'Connecting to the server';
 			let socket = io(server);
@@ -34,7 +35,7 @@ $(function() {
 			});
 
 			socket.on('connect', () => {
-				error(false);
+				error(false, 'Connected to the server');
 			});
 
 			socket.on('disconnect', () => {
@@ -117,10 +118,12 @@ $(function() {
 
 const error = (errorBool, msg) => {
 	if(errorBool) {
+		ipcRenderer.send('log', msg);
 		$('#chat-errors').text(msg);
 		$('#send_message').prop('placeholder', msg);
 		$('#send_message').prop('disabled', true);
 	} else {
+		ipcRenderer.send('log', msg);
 		$('#chat-errors').text('');
 		$('#send_message').prop('placeholder', 'Send a message.');
 		$('#send_message').prop('disabled', false);

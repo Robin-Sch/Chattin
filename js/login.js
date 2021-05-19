@@ -41,6 +41,7 @@ const login = async () => {
 		password,
 		room,
 	};
+
 	fetch(`${server}/login`, {
 		method: 'POST',
 		body: JSON.stringify(body),
@@ -72,13 +73,16 @@ const register = async () => {
 		password,
 		room,
 	};
+
 	fetch(`${server}/register`, {
 		method: 'POST',
 		body: JSON.stringify(body),
 		headers: { 'Content-Type': 'application/json' },
 	}).then(res => res.json())
 		.then(json => {
-			if (!json.success) {return document.getElementById('response').innerHTML = json.message;} else {
+			if (!json.success) {
+				return document.getElementById('response').innerHTML = json.message;
+			} else {
 				savedata.set('username', username);
 				savedata.set('room', room);
 				ipcRenderer.send('open:index', { uid: json.uid, room, token: json.token, uid: json.uid });
