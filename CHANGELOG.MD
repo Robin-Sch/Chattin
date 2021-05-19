@@ -1,3 +1,7 @@
+# v0.0.5
+More logging
+Server change
+
 # v0.0.4
 No email required
 
