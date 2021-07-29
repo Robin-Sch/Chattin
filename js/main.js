@@ -114,18 +114,18 @@ $(function() {
 			clearInterval(getPrevious);
 		}
 	}, 500)
-});
 
-const error = (errorBool, msg) => {
-	if(errorBool) {
-		ipcRenderer.send('log', msg);
-		$('#chat-errors').text(msg);
-		$('#send_message').prop('placeholder', msg);
-		$('#send_message').prop('disabled', true);
-	} else {
-		ipcRenderer.send('log', msg);
-		$('#chat-errors').text('');
-		$('#send_message').prop('placeholder', 'Send a message.');
-		$('#send_message').prop('disabled', false);
+	const error = (errorBool, msg) => {
+		if(errorBool) {
+			ipcRenderer.send('log', msg);
+			$('#chat-errors').text(msg);
+			$('#send_message').prop('placeholder', msg);
+			$('#send_message').prop('disabled', true);
+		} else {
+			ipcRenderer.send('log', msg);
+			$('#chat-errors').text('');
+			$('#send_message').prop('placeholder', 'Send a message.');
+			$('#send_message').prop('disabled', false);
+		}
 	}
-}
+});

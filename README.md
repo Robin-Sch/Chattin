@@ -4,6 +4,18 @@ Chattin is an application to talk with other people. You can join different room
 
 ![Logo](https://github.com/RobinSchapendonk/Chattin/blob/master/build/icon.png)
 
+## Installation
+
+Download from [github releases](https://github.com/Robin-floss/Chattin/releases/latest)
+
+Or build yourself (on arch linux) using
+
+```
+git clone https://github.com/Robin-floss/Chattin
+cd Chattin
+makepkg -csi
+```
+
 ## Register
 
 Open the app, enter an username and a password, then click "register" to register
