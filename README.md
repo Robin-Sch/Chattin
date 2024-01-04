@@ -1,5 +1,7 @@
 # Chattin
 
+Chattin has been shut down. I might continue with the project in the future, but for now I won't.
+
 Chattin is an application to talk with other people. You can join different rooms to talk with different people.
 
 ![Logo](https://github.com/RobinSchapendonk/Chattin/blob/master/build/icon.png)

@@ -8,7 +8,7 @@
     "build-win": "electron-builder --win --publish never",
     "build-mac": "electron-builder --mac dmg --publish never",
     "build-linux": "electron-builder --linux appimage --publish never",
-		"build-pacman": "electron-builder --linux pacman --publish never"
+    "build-pacman": "electron-builder --linux pacman --publish never"
   },
   "build": {
     "appId": "com.electron.chattin",
